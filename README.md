@@ -1,11 +1,9 @@
 # Full GO ReactJS
+![1_u4KnqEio0EmeHotVtiwMTA](https://user-images.githubusercontent.com/17799273/191329484-cee8623f-7b80-44c8-ba07-dd087b239c46.png)
 
 ## Table of Contents
 
 - [About](#about)
-- [Getting Started](#getting_started)
-- [Usage](#usage)
-- [Contributing](../CONTRIBUTING.md)
 
 ## About <a name = "about"></a>
 
