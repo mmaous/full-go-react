@@ -1,0 +1,10 @@
+body {
+  font-family: "Inter", Arial, Helvetica, sans-serif;
+  background: #0a174c08 !important;
+}
+.shadow-login {
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  background-color: #fff;
+}
+
