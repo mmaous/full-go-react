@@ -9,11 +9,13 @@ import (
 
 	env "github.com/joho/godotenv"
 	// "go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-var DB_NAME = "golang-app"
+var DB_NAME = "sample_training"
 
 // Connect to the database returns a client and a context
 func Connect() (*mongo.Client, context.Context) {
@@ -28,21 +30,18 @@ func Connect() (*mongo.Client, context.Context) {
 	// get the database url from the .env file
 	MONGO_URI := os.Getenv("MONGO_URI")
 
-	client, err := mongo.NewClient(options.Client().ApplyURI(MONGO_URI))
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Hour) // 10 seconds
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(MONGO_URI))
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Connecting to database...")
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second) // 10 seconds
-
-	fmt.Println("after ctx")
-
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Fatal(err)
+	// Ping the primary
+	if err := client.Ping(context.TODO(), readpref.Primary()); err != nil {
+		panic(err)
 	}
-
-	defer client.Disconnect(ctx)
+	fmt.Println("Database Successfully connected and pinged.")
+	// defer client.Disconnect(ctx)
 
 	return client, ctx
 }
@@ -52,4 +51,26 @@ func GetCollection(client *mongo.Client, collectionName string) *mongo.Collectio
 
 	collection := client.Database(DB_NAME).Collection(collectionName)
 	return collection
+}
+
+// list all collections
+func ListCollections(client *mongo.Client, ctx context.Context) []string {
+	collections, err := client.Database(DB_NAME).ListCollectionNames(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return collections
+}
+
+func Disconnect() {
+	fmt.Println("Disconnecting from database...")
+	clt, ctx := Connect()
+	err := clt.Disconnect(ctx)
+	
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel() // cancel when we are finished consuming integers
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
